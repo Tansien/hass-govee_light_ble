@@ -67,8 +67,8 @@ class GoveeBluetoothLight(CoordinatorEntity, LightEntity):
         return self.coordinator.data.state
 
     @property
-    def rgb_color(self) -> bool | None:
-        """Return the current rgw color."""
+    def rgb_color(self) -> tuple[int, int, int] | None:
+        """Return the current rgb color."""
         return self.coordinator.data.color
 
     async def async_turn_on(self, **kwargs):

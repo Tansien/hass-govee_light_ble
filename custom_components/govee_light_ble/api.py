@@ -76,7 +76,8 @@ class GoveeAPI:
     async def _handleReceive(self, characteristic: BleakGATTCharacteristic, frame: bytearray):
         """ receives packets async """
         if not await GoveeUtils.verifyChecksum(frame):
-            raise Exception("transmission error, received packet with bad checksum")
+            _LOGGER.warning("Received packet with bad checksum, ignoring")
+            return
         
         packet = LedPacket(
             head=frame[0],

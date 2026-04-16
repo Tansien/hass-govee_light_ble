@@ -67,7 +67,7 @@ class GoveeCoordinator(DataUpdateCoordinator):
             update_method=self._async_update_data,
             # Do not set a polling interval as data will be pushed.
             # You can remove this line but left here for explanatory purposes.
-            update_interval=timedelta(seconds=15)
+            update_interval=timedelta(seconds=60)
         )
 
     def _async_ble_device_update(self, service_info: BluetoothServiceInfoBleak, change: BluetoothChange) -> None:
