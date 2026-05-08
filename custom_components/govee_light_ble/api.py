@@ -124,7 +124,13 @@ class GoveeAPI:
             for packet in self._packet_buffer:
                 await self._transmitPacket(packet)
         except Exception:
+            client = self._client
             self._client = None
+            if client is not None:
+                try:
+                    await client.disconnect()
+                except Exception:
+                    pass
             raise
         finally:
             await self._clearPacketBuffer()
