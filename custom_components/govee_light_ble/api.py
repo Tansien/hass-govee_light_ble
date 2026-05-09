@@ -1,10 +1,12 @@
 import asyncio
 import bleak_retry_connector
+from bleak_retry_connector import BleakOutOfConnectionSlotsError
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak import (
     BleakClient,
     BLEDevice
 )
+from datetime import datetime, timedelta
 from .const import WRITE_CHARACTERISTIC_UUID, READ_CHARACTERISTIC_UUID
 from .api_utils import (
     LedPacketHead,
@@ -16,6 +18,9 @@ from .api_utils import (
 
 import logging
 _LOGGER = logging.getLogger(__name__)
+
+_SLOT_ERROR_THRESHOLD = 2
+_SLOT_BACKOFF_DURATION = timedelta(minutes=5)
 
 class GoveeAPI:
     state: bool | None = None
@@ -29,6 +34,8 @@ class GoveeAPI:
         self._packet_buffer = []
         self._client = None
         self._update_callback = update_callback
+        self._slot_error_count = 0
+        self._slot_backoff_until: datetime | None = None
 
     @property
     def address(self):
@@ -119,10 +126,29 @@ class GoveeAPI:
         """ transmits all buffered data """
         if not self._packet_buffer:
             return None
+        if self._slot_backoff_until is not None:
+            now = datetime.now()
+            if now < self._slot_backoff_until:
+                remaining = int((self._slot_backoff_until - now).total_seconds())
+                _LOGGER.debug("Proxy slot backoff active, skipping for %ds more", remaining)
+                await self._clearPacketBuffer()
+                return None
+            self._slot_backoff_until = None
         try:
             await self._ensureConnected()
             for packet in self._packet_buffer:
                 await self._transmitPacket(packet)
+            self._slot_error_count = 0
+        except BleakOutOfConnectionSlotsError:
+            self._slot_error_count += 1
+            _LOGGER.warning("No proxy connection slots available (consecutive errors: %d)", self._slot_error_count)
+            if self._slot_error_count >= _SLOT_ERROR_THRESHOLD:
+                self._slot_backoff_until = datetime.now() + _SLOT_BACKOFF_DURATION
+                _LOGGER.warning(
+                    "Backing off for %d minutes after repeated slot exhaustion",
+                    int(_SLOT_BACKOFF_DURATION.total_seconds() // 60)
+                )
+            raise
         except Exception:
             client = self._client
             self._client = None
