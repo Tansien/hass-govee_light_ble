@@ -21,6 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 
 _SLOT_ERROR_THRESHOLD = 2
 _SLOT_BACKOFF_DURATION = timedelta(minutes=5)
+_MAX_CONNECTION_AGE = timedelta(hours=1)
 
 class GoveeAPI:
     state: bool | None = None
@@ -33,6 +34,7 @@ class GoveeAPI:
         self._segmented = segmented
         self._packet_buffer = []
         self._client = None
+        self._connected_at: datetime | None = None
         self._update_callback = update_callback
         self._slot_error_count = 0
         self._slot_backoff_until: datetime | None = None
@@ -47,7 +49,17 @@ class GoveeAPI:
     async def _ensureConnected(self):
         """ connects to a bluetooth device """
         if self._client is not None and self._client.is_connected:
-            return None
+            age = datetime.now() - self._connected_at if self._connected_at else None
+            if age is None or age > _MAX_CONNECTION_AGE:
+                _LOGGER.debug("Forcing reconnect to %s — connection age %s", self.address, age)
+                try:
+                    await self._client.disconnect()
+                except Exception:
+                    pass
+                self._client = None
+                self._connected_at = None
+            else:
+                return None
         if self._client is not None:
             try:
                 await self._client.disconnect()
@@ -58,7 +70,9 @@ class GoveeAPI:
 
     async def _connect(self):
         def _disconnected(client: BleakClient) -> None:
-            self._client = None
+            if self._client is client:
+                self._client = None
+                self._connected_at = None
 
         self._client = await bleak_retry_connector.establish_connection(
             BleakClient,
@@ -67,6 +81,7 @@ class GoveeAPI:
             disconnected_callback=_disconnected
         )
         await self._client.start_notify(READ_CHARACTERISTIC_UUID, self._handleReceive)
+        self._connected_at = datetime.now()
 
     async def _transmitPacket(self, packet: LedPacket):
         """ transmit the actiual packet """
