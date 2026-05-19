@@ -80,7 +80,16 @@ class GoveeAPI:
             self.address,
             disconnected_callback=_disconnected
         )
-        await self._client.start_notify(READ_CHARACTERISTIC_UUID, self._handleReceive)
+        try:
+            await self._client.start_notify(READ_CHARACTERISTIC_UUID, self._handleReceive)
+        except Exception:
+            client = self._client
+            self._client = None
+            try:
+                await client.disconnect()
+            except Exception:
+                pass
+            raise
         self._connected_at = datetime.now()
 
     async def _transmitPacket(self, packet: LedPacket):
@@ -130,7 +139,7 @@ class GoveeAPI:
         #request data or perform a change
         head = LedPacketHead.REQUEST if request else LedPacketHead.COMMAND
         packet = LedPacket(head, cmd, payload)
-        for index in range(repeat):
+        for _ in range(repeat):
             self._packet_buffer.append(packet)
 
     async def _clearPacketBuffer(self):
