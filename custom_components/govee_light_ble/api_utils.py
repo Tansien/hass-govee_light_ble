@@ -25,6 +25,25 @@ class LedPacket:
     #actual data to transmit
     payload: bytes | list = b''
 
+
+def clamp_byte(value: int | float) -> int:
+    """Clamp a value to the Home Assistant brightness range."""
+    return max(0, min(255, round(value)))
+
+
+def brightness_from_device(value: int, segmented: bool) -> int:
+    """Convert device brightness to Home Assistant brightness."""
+    return clamp_byte(value / 100 * 255 if segmented else value)
+
+
+def brightness_to_device(value: int, segmented: bool) -> int:
+    """Convert Home Assistant brightness to device brightness."""
+    brightness = clamp_byte(value)
+    if not segmented or brightness == 0:
+        return brightness
+    return max(1, min(100, round(brightness / 255 * 100)))
+
+
 class GoveeUtils:
     @staticmethod
     async def generateChecksum(frame: bytes):

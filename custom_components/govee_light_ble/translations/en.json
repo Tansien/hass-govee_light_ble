@@ -10,7 +10,16 @@
             },
             "bluetooth_confirm": {
                 "data": {
-                    "segmented": "Is this an LED strip with individually controllable segments?"
+                    "segmented": "Use segmented BLE protocol"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "segmented": "Use segmented BLE protocol"
                 }
             }
         }

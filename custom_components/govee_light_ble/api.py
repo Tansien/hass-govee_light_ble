@@ -1,4 +1,3 @@
-import asyncio
 import bleak_retry_connector
 from bleak_retry_connector import BleakOutOfConnectionSlotsError
 from bleak.backends.characteristic import BleakGATTCharacteristic
@@ -13,7 +12,9 @@ from .api_utils import (
     LedPacketCmd,
     LedColorType,
     LedPacket,
-    GoveeUtils
+    GoveeUtils,
+    brightness_from_device,
+    brightness_to_device,
 )
 
 import logging
@@ -106,7 +107,7 @@ class GoveeAPI:
                 self.state = packet.payload[0] == 0x01
             case LedPacketCmd.BRIGHTNESS:
                 #segmented devices 0-100
-                self.brightness = packet.payload[0] / 100 * 255 if self._segmented else packet.payload[0]
+                self.brightness = brightness_from_device(packet.payload[0], self._segmented)
             case LedPacketCmd.COLOR:
                 red = packet.payload[1]
                 green = packet.payload[2]
@@ -217,10 +218,7 @@ class GoveeAPI:
         if self.brightness == brightness:
             return None #nothing to do
         #legacy devices 0-255
-        payload = round(brightness)
-        if self._segmented:
-            #segmented devices 0-100
-            payload = round(brightness / 255 * 100)
+        payload = brightness_to_device(brightness, self._segmented)
         await self._preparePacket(LedPacketCmd.BRIGHTNESS, [payload])
         await self.requestBrightnessBuffered()
         

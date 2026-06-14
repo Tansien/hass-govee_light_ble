@@ -3,20 +3,12 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import CONNECTION_BLUETOOTH, DeviceInfo
 from homeassistant.components.light import (ColorMode, LightEntity, ATTR_BRIGHTNESS, ATTR_RGB_COLOR)
-from homeassistant.const import CONF_ADDRESS, CONF_NAME
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .api import GoveeAPI
 from .const import DOMAIN
 from .coordinator import GoveeCoordinator
-
-import logging
-_LOGGER = logging.getLogger(__name__)
-
-def num_to_range(num, inMin, inMax, outMin, outMax):
-    return outMin + (float(num - inMin) / float(inMax - inMin) * (outMax - outMin))
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -49,7 +41,8 @@ class GoveeBluetoothLight(CoordinatorEntity, LightEntity):
             manufacturer="GOVEE",
             model=coordinator.device_name,
             serial_number=coordinator.device_address,
-            identifiers={(DOMAIN, coordinator.device_address)}
+            identifiers={(DOMAIN, coordinator.device_address)},
+            connections={(CONNECTION_BLUETOOTH, coordinator.device_address)}
         )
 
     @callback
@@ -77,8 +70,7 @@ class GoveeBluetoothLight(CoordinatorEntity, LightEntity):
 
         if ATTR_BRIGHTNESS in kwargs:
             brightness = kwargs.get(ATTR_BRIGHTNESS, 255) #1-255
-            brightness_mapped = num_to_range(brightness, 1, 255, 0, 255) #mapping from 1-255 to 0-255
-            await self.coordinator.setBrightnessBuffered(brightness_mapped)
+            await self.coordinator.setBrightnessBuffered(brightness)
 
         if ATTR_RGB_COLOR in kwargs:
             red, green, blue = kwargs.get(ATTR_RGB_COLOR)

@@ -14,6 +14,7 @@ from homeassistant.components.bluetooth import (
 )
 
 from .const import DOMAIN
+from .const import CONF_SEGMENTED
 from .api import GoveeAPI
 
 import logging
@@ -38,13 +39,16 @@ class GoveeCoordinator(DataUpdateCoordinator):
         # Set variables from values entered in config flow setup
         self.device_name = config_entry.data[CONF_NAME]
         self.device_address = config_entry.data[CONF_ADDRESS]
-        self.device_segmented = config_entry.data["segmented"]
+        self.device_segmented = config_entry.options.get(
+            CONF_SEGMENTED,
+            config_entry.data.get(CONF_SEGMENTED, True)
+        )
 
         #get connection to bluetooth device
         ble_device = bluetooth.async_ble_device_from_address(
             hass,
             self.device_address,
-            connectable=False
+            connectable=True
         )
         assert ble_device
         self._api = GoveeAPI(ble_device, self._async_push_data, self.device_segmented)

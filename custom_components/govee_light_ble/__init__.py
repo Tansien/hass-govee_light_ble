@@ -11,7 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
 
 from .coordinator import GoveeCoordinator
-from .const import DOMAIN
+from .const import CONF_SEGMENTED, DOMAIN, default_segmented
 
 import logging
 _LOGGER = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     #look for device
     device_address = config_entry.data[CONF_ADDRESS]
-    if not bluetooth.async_ble_device_from_address(hass, device_address, False):
+    if not bluetooth.async_ble_device_from_address(hass, device_address, True):
         raise ConfigEntryNotReady(
             f"Could not find LED BLE device with address {device_address}"
         )
@@ -94,7 +94,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         hass.config_entries.async_update_entry(config_entry, data={
             CONF_ADDRESS: config_entry.unique_id.upper(),
             CONF_NAME: config_entry.title,
-            "segmented": True
+            CONF_SEGMENTED: default_segmented(config_entry.title)
         }, version=2)
 
     _LOGGER.debug("Migration to configuration version %s successful", config_entry.version)
