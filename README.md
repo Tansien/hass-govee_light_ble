@@ -1,10 +1,10 @@
 # Govee Bluetooth Lights Integration for Home Assistant 🏠
 
-[![GitHub Release](https://img.shields.io/github/v/release/harwoodspike/hass-govee_light_ble?sort=semver&style=for-the-badge&color=green)](https://github.com/harwoodspike/hass-govee_light_ble/releases/)
-[![GitHub Release Date](https://img.shields.io/github/release-date/harwoodspike/hass-govee_light_ble?style=for-the-badge&color=green)](https://github.com/harwoodspike/hass-govee_light_ble/releases/)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/harwoodspike/hass-govee_light_ble/latest/total?style=for-the-badge&label=Downloads%20latest%20Release)
+[![GitHub Release](https://img.shields.io/github/v/release/Tansien/hass-govee_light_ble?sort=semver&style=for-the-badge&color=green)](https://github.com/Tansien/hass-govee_light_ble/releases/)
+[![GitHub Release Date](https://img.shields.io/github/release-date/Tansien/hass-govee_light_ble?style=for-the-badge&color=green)](https://github.com/Tansien/hass-govee_light_ble/releases/)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/Tansien/hass-govee_light_ble/latest/total?style=for-the-badge&label=Downloads%20latest%20Release)
 ![HA Analytics](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fanalytics.home-assistant.io%2Fcustom_integrations.json&query=%24.govee_light_ble.total&style=for-the-badge&label=Active%20Installations&color=red)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/harwoodspike/hass-govee_light_ble?style=for-the-badge)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Tansien/hass-govee_light_ble?style=for-the-badge)
 [![hacs](https://img.shields.io/badge/HACS-Integration-blue.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 ## Overview
@@ -26,7 +26,7 @@ This integration is available in HACS (Home Assistant Community Store).
 3. Go to any of the sections (integrations, frontend, automation).
 4. Click on the 3 dots in the top right corner.
 5. Select "Custom repositories"
-6. Add following URL to the repository `https://github.com/harwoodspike/hass-govee_light_ble`.
+6. Add following URL to the repository `https://github.com/Tansien/hass-govee_light_ble`.
 7. Select Integration as category.
 8. Click the "ADD" button
 9. Search for "Govee Bluetooth Lights"
@@ -34,14 +34,14 @@ This integration is available in HACS (Home Assistant Community Store).
 
 ### Manual
 
-To install this integration manually you have to download [_govee_light_ble.zip_](https://github.com/harwoodspike/hass-govee_light_ble/releases/latest/) and extract its contents to `config/custom_components/govee_light_ble` directory:
+To install this integration manually, download the `v2.7.8` source archive and copy `custom_components/govee_light_ble` to your Home Assistant config directory:
 
 ```bash
-mkdir -p custom_components/govee_light_ble
-cd custom_components/govee_light_ble
-wget https://github.com/harwoodspike/hass-govee_light_ble/releases/latest/download/govee_light_ble.zip
-unzip govee_light_ble.zip
-rm govee_light_ble.zip
+mkdir -p custom_components
+wget https://github.com/Tansien/hass-govee_light_ble/archive/refs/tags/v2.7.8.zip
+unzip v2.7.8.zip
+cp -R hass-govee_light_ble-*/custom_components/govee_light_ble custom_components/
+rm -rf v2.7.8.zip hass-govee_light_ble-*
 ```
 
 ## Configuration
