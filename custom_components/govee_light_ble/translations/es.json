@@ -10,7 +10,16 @@
             },
             "bluetooth_confirm": {
                 "data": {
-                    "segmented": "¿Es una tira LED con segmentos que se controlan individualmente?"
+                    "segmented": "Usar protocolo BLE segmentado"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "segmented": "Usar protocolo BLE segmentado"
                 }
             }
         }

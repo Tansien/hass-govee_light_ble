@@ -10,7 +10,16 @@
             },
             "bluetooth_confirm": {
                 "data": {
-                    "segmented": "Handelt es sich um einen LED-Streifen mit einzeln steuerbaren Segmenten?"
+                    "segmented": "Segmentiertes BLE-Protokoll verwenden"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "segmented": "Segmentiertes BLE-Protokoll verwenden"
                 }
             }
         }
